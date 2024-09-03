@@ -1,0 +1,23 @@
+<div class="chat-container d-flex mt-5">
+  <!-- Sidebar for Chat Rooms -->
+  <div class="chat-rooms-list p-3 border-end">
+    <h2 class="mb-4">Your Chat Rooms</h2>
+    <div class="list-group">
+      <a
+        *ngFor="let room of chatRooms"
+        class="list-group-item list-group-item-action"
+        (click)="navigateToRoom(room.id)"
+      >
+        {{ room.name }}
+      </a>
+    </div>
+  </div>
+
+  
+  <div class="chat-window p-3 flex-grow-1">
+    <!-- Replace this with your chat component or chat HTML -->
+    <h2>Chat Window</h2>
+
+    <router-outlet></router-outlet>
+  </div>
+</div>
