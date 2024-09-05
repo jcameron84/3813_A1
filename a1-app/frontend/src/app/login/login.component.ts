@@ -16,7 +16,6 @@ export class LoginComponent {
   email: string = '';
   password: string = '';
   onSubmit() {
-    // Implement your login logic here
     if (this.email && this.password){
       this.authService.login(this.email, this.password).subscribe((isAuthenticated: boolean) => {
         if (isAuthenticated) {
