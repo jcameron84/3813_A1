@@ -7,6 +7,8 @@ import { AppComponent } from './app.component';
 import { LoginComponent } from './login/login.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { ChatWindowComponent } from './chat-window/chat-window.component';
+import { AuthGuard } from './auth.guard';
+
 
 
 @NgModule({
@@ -14,7 +16,7 @@ import { ChatWindowComponent } from './chat-window/chat-window.component';
     AppComponent,
     LoginComponent,
     DashboardComponent,
-    ChatWindowComponent
+    ChatWindowComponent,
   ],
   imports: [
     BrowserModule,
