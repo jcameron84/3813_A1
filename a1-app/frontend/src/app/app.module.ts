@@ -8,6 +8,9 @@ import { LoginComponent } from './login/login.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { ChatWindowComponent } from './chat-window/chat-window.component';
 import { AuthGuard } from './auth.guard';
+import { UserManagementComponent } from './user-management/user-management.component';
+import { HttpClientModule } from '@angular/common/http';
+
 
 
 
@@ -17,11 +20,13 @@ import { AuthGuard } from './auth.guard';
     LoginComponent,
     DashboardComponent,
     ChatWindowComponent,
+    UserManagementComponent,
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     FormsModule,
+    HttpClientModule,
   ],
   providers: [
     provideClientHydration()

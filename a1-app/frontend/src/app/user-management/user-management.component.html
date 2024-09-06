@@ -1,12 +1,12 @@
 <div class="container mt-5">
     <div class="row justify-content-center">
-      <div class="col-md-4">
+      <div class="col-md-6">
         <div class="card">
           <div class="card-header text-center">
-            <h3>Login</h3>
+            <h3>Create New User</h3>
           </div>
           <div class="card-body">
-            <form (ngSubmit)="login()" #loginForm="ngForm">
+            <form (ngSubmit)="createUser()" #userForm="ngForm">
               <div class="form-group mb-3">
                 <label for="email">Email address</label>
                 <input
@@ -16,7 +16,6 @@
                   name="email"
                   [(ngModel)]="email"
                   required
-                  email
                   placeholder="Enter email"
                   #emailInput="ngModel"
                 />
@@ -33,12 +32,27 @@
                   name="password"
                   [(ngModel)]="password"
                   required
-                  placeholder="Password"
+                  placeholder="Enter password"
                   #passwordInput="ngModel"
                 />
+                <div *ngIf="passwordInput.invalid && passwordInput.touched" class="text-danger">
+                  Password is required.
+                </div>
               </div>
-              <button type="submit" class="btn btn-primary w-100" [disabled]="!loginForm.valid">
-                Login
+              <div class="form-group mb-3">
+                <label for="role">Select Role</label>
+                <select
+                  class="form-control"
+                  id="role"
+                  name="role"
+                  [(ngModel)]="selectedRole"
+                  required
+                >
+                  <option *ngFor="let role of userRoles" [value]="role">{{ role }}</option>
+                </select>
+              </div>
+              <button type="submit" class="btn btn-primary w-100" [disabled]="!userForm.valid">
+                Create User
               </button>
             </form>
           </div>

@@ -11,22 +11,29 @@ import { Router } from '@angular/router';
 })
 export class LoginComponent {
 
-  constructor(private authService: AuthService, private router: Router) {}
 
   email: string = '';
   password: string = '';
-  onSubmit() {
-    if (this.email && this.password){
-      this.authService.login(this.email, this.password).subscribe((isAuthenticated: boolean) => {
-        if (isAuthenticated) {
-          console.log('Login Successful');
-          this.router.navigate(['/dashboard']);
+  errorMessage: string = '';
+
+  constructor(private authService: AuthService, private router: Router) {}
+
+  login(email: string, password: string) {
+    this.authService.login(this.email, this.password).subscribe(isLoggedIn => {
+      if (isLoggedIn) {
+        const role = this.authService.getRole();
+
+        if (role === 'superUser') {
+          this.router.navigate(['/dashboard'])
+        } else if (role === 'admin') {
+          this.router.navigate(['/dashboard'])
         } else {
-          console.error('Invalid Input');
+          this.router.navigate(['/dashboard'])
         }
-      })
-    } else {
-      console.error('Invalid Form');
-    }
+
+      }else {
+        this.errorMessage = 'Invalid email or password';
+      }
+    });
   }
 }
