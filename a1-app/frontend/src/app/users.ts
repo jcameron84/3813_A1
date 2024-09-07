@@ -1,5 +1,10 @@
 import { Role } from "./roles";
 
+export interface User {
+  email: string;
+  password: string;
+  role: Role;
+}
 
 function getParsedUsers(): Array<{ email: string; password: string; role: Role }> {
     const usersFromStorage = localStorage.getItem('users');
@@ -7,7 +12,7 @@ function getParsedUsers(): Array<{ email: string; password: string; role: Role }
   }
 
   function initUsers(): void {
-    let users = getParsedUsers();  // Use the safe function
+    let users = getParsedUsers(); 
   
     if (users.length === 0) {
       const defaultUser = {
@@ -25,7 +30,7 @@ function getParsedUsers(): Array<{ email: string; password: string; role: Role }
   }
 
 function addUser(email: string, password: string, role: Role): void {
-    let users = getParsedUsers();  // Reuse the safe function
+    let users = getParsedUsers(); 
   
     if (users.some(user => user.email === email)) {
       console.log('User already exists!');
@@ -52,7 +57,7 @@ function userExists(email: string): boolean {
 }
 
 // Retrieve all users
-function getUsers(): Array<{ email: string; password: string; role: Role }> {
+export function getUsers(): Array<{ email: string; password: string; role: Role }> {
     return getParsedUsers();  
   }
 

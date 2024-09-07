@@ -10,6 +10,8 @@ import { ChatWindowComponent } from './chat-window/chat-window.component';
 import { AuthGuard } from './auth.guard';
 import { UserManagementComponent } from './user-management/user-management.component';
 import { HttpClientModule } from '@angular/common/http';
+import { DeleteUsersComponent } from './delete-users/delete-users.component';
+import { ManageGroupsComponent } from './manage-groups/manage-groups.component';
 
 
 
@@ -21,6 +23,8 @@ import { HttpClientModule } from '@angular/common/http';
     DashboardComponent,
     ChatWindowComponent,
     UserManagementComponent,
+    DeleteUsersComponent,
+    ManageGroupsComponent,
   ],
   imports: [
     BrowserModule,

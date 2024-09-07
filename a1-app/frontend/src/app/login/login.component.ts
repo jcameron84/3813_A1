@@ -18,7 +18,7 @@ export class LoginComponent {
 
   constructor(private authService: AuthService, private router: Router) {}
 
-  login(email: string, password: string) {
+  login() {
     this.authService.login(this.email, this.password).subscribe(isLoggedIn => {
       if (isLoggedIn) {
         const role = this.authService.getRole();

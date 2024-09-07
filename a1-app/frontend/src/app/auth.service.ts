@@ -67,4 +67,20 @@ export class AuthService {
     return this.userRole;
   }
 
+  deleteUser(email: string): Observable<boolean> {
+    const usersFromStorage = localStorage.getItem('users');
+    const users: User[] = usersFromStorage ? JSON.parse(usersFromStorage) : [];
+  
+    const userIndex = users.findIndex(user => user.email === email);
+  
+    if (userIndex !== -1) {
+      users.splice(userIndex, 1);  // Remove the user from the array
+      localStorage.setItem('users', JSON.stringify(users));  // Update localStorage
+      return of(true);  // Return success
+    } else {
+      return of(false);  // User not found, return failure
+    }
+  }
+  
+
 }

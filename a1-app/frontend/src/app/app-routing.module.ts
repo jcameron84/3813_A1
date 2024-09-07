@@ -7,6 +7,8 @@ import { UserManagementComponent } from './user-management/user-management.compo
 import { AuthGuard } from './auth.guard';
 import { RoleGuard } from './role.guard';
 import { Role } from './roles';
+import { DeleteUsersComponent } from './delete-users/delete-users.component';
+import { ManageGroupsComponent } from './manage-groups/manage-groups.component';
 
 
 const routes: Routes = [
@@ -28,6 +30,18 @@ const routes: Routes = [
     component: UserManagementComponent,  
     canActivate: [RoleGuard],
     data: { expectedRole: Role.superUser }
+  },
+  {
+    path: 'deleteUsers',
+    component: DeleteUsersComponent,
+    canActivate: [RoleGuard],
+    data: { expectedRole: Role.superUser }  // Only super users can access this page
+  },
+  {
+  path: 'manageGroups',
+  component: ManageGroupsComponent,  
+  canActivate: [RoleGuard],
+  data: { expectedRole: Role.admin }
   },
 
   {path: 'login', component: LoginComponent},
