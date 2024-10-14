@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']  // Fixed styleUrls typo here
+  styleUrls: ['../app.component.css']  // Fixed styleUrls typo here
 })
 export class AppComponent implements OnInit {
   title = 'frontend';

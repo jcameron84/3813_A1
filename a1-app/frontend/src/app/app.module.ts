@@ -3,11 +3,11 @@ import { BrowserModule, provideClientHydration } from '@angular/platform-browser
 import { FormsModule } from '@angular/forms';
 
 import { AppRoutingModule } from './app-routing.module';
-import { AppComponent } from './app.component';
+import { AppComponent } from './components/app.component';
 import { LoginComponent } from './login/login.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { ChatWindowComponent } from './chat-window/chat-window.component';
-import { AuthGuard } from './auth.guard';
+import { AuthGuard } from './guards/auth.guard';
 import { UserManagementComponent } from './user-management/user-management.component';
 import { HttpClientModule } from '@angular/common/http';
 import { DeleteUsersComponent } from './delete-users/delete-users.component';
