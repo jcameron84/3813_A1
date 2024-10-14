@@ -1,13 +1,19 @@
-<h1>Chat Title</h1>   
-<div style="height: 100%">
-    <p>Messages go here</p>
+<h1>Chat Title</h1>
+
+<!-- Messages Display -->
+<div class="messages-container" style="height: 400px; overflow-y: auto;">
+  <div *ngFor="let message of messages">
+    <strong>{{ message.sender }}:</strong> {{ message.content }} <br/>
+    <small>{{ message.createdAt | date:'shortTime' }}</small> <!-- Optional: showing time -->
+  </div>
 </div>
 
-<form>
-    <div class="d-flex align-items-start">
-        <div class="flex-grow-1 me-2">
-          <textarea class="form-control" rows="1" placeholder="Type your message"></textarea>
-        </div>
-        <button type="submit" class="btn btn-primary">Send</button>
-      </div>
+<!-- Form for sending messages -->
+<form (submit)="sendMessage()">
+  <div class="d-flex align-items-start">
+    <div class="flex-grow-1 me-2">
+      <textarea [(ngModel)]="newMessage" name="message" class="form-control" rows="1" placeholder="Type your message"></textarea>
+    </div>
+    <button type="submit" class="btn btn-primary">Send</button>
+  </div>
 </form>

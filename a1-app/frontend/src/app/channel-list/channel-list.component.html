@@ -1,0 +1,6 @@
+<h2>Channels</h2>
+<ul>
+  <li *ngFor="let channel of channels" (click)="enterChannel(channel._id)">
+    {{ channel.name }} - {{ channel.description }}
+  </li>
+</ul>

@@ -12,6 +12,8 @@ import { UserManagementComponent } from './user-management/user-management.compo
 import { HttpClientModule } from '@angular/common/http';
 import { DeleteUsersComponent } from './delete-users/delete-users.component';
 import { ManageGroupsComponent } from './manage-groups/manage-groups.component';
+import { ChannelListComponent } from './channel-list/channel-list.component';
+import { MessageListComponent } from './message-list/message-list.component';
 
 
 
@@ -25,6 +27,8 @@ import { ManageGroupsComponent } from './manage-groups/manage-groups.component';
     UserManagementComponent,
     DeleteUsersComponent,
     ManageGroupsComponent,
+    ChannelListComponent,
+    MessageListComponent,
   ],
   imports: [
     BrowserModule,

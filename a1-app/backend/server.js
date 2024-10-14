@@ -1,33 +1,105 @@
 const express = require('express');
+const http = require('http');
+const socketIo = require('socket.io');
+const connectToDatabase = require('./db');  // Import MongoDB connection
+const cors = require('cors');
+
+// Initialize Express
 const app = express();
-const port = 3000;
+const server = http.createServer(app);
+const io = socketIo(server);
 
-const { MongoClient } = require('mongodb');
+// Middleware
+app.use(express.json());
+app.use(cors());  // Enable CORS
 
-const url = 'mongodb://localhost:27017';
-const dbName = 'chatApp';
+// Setup MongoDB Connection
+let db;
+connectToDatabase()
+  .then(database => {
+    db = database;
+  })
+  .catch(err => console.error('Database connection error:', err));
 
-const client = new MongoClient(url);
+// Socket.IO connection
+io.on('connection', (socket) => {
+  console.log('New client connected');
 
-async function connectToDatabase() {
+  // Join a channel
+  socket.on('joinChannel', (channelId) => {
+    socket.join(channelId);
+    console.log(`Client joined channel: ${channelId}`);
+  });
+
+  // Send message to the channel
+  socket.on('sendMessage', async ({ channelId, content, sender }) => {
+    console.log('Received message:', { channelId, content, sender });
+
+    const message = {
+      channelId: channelId,
+      content: content,
+      sender: sender,
+      createdAt: new Date(),
+    };
+
+    // Save message to MongoDB (or database)
     try {
-      await client.connect();
-      console.log('Connected to MongoDB');
-      const db = client.db(dbName);
-      return db;
+      const messagesCollection = db.collection('messages');
+      await messagesCollection.insertOne(message);
+
+      // Emit the message to all clients in the same channel
+      io.to(channelId).emit('newMessage', message);
     } catch (err) {
-      console.error('Error connecting to MongoDB', err);
-      process.exit(1);
+      console.error('Error saving message:', err);
     }
-}
-
-
-connectToDatabase().then((db) => {
-  app.get('/', (req, res) => {
-    res.send('Hello MEAN Stack!');
   });
 
-  app.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
+  socket.on('disconnect', () => {
+    console.log('Client disconnected');
   });
+});
+
+
+// API route to get all channels
+app.get('/api/channels', async (req, res) => {
+  try {
+    const channelsCollection = db.collection('channels');
+    const channels = await channelsCollection.find({}).toArray();
+    res.json(channels);
+  } catch (err) {
+    res.status(500).send('Error retrieving channels');
+  }
+});
+
+// API route to create a new channel
+app.post('/api/channels', async (req, res) => {
+  const { name, description } = req.body;
+  const newChannel = { name, description, createdAt: new Date() };
+
+  try {
+    const channelsCollection = db.collection('channels');
+    const result = await channelsCollection.insertOne(newChannel);
+    res.status(201).json(result.ops[0]);
+  } catch (err) {
+    res.status(500).send('Error creating channel');
+  }
+});
+
+// API route to get messages of a specific channel
+app.get('/api/messages/:channelId', async (req, res) => {
+  const channelId = req.params.channelId;
+
+  try {
+    const messagesCollection = db.collection('messages');
+    const messages = await messagesCollection.find({ channelId }).toArray();
+    res.json(messages);
+  } catch (err) {
+    res.status(500).send('Error retrieving messages');
+  }
+});
+
+// Start server
+const PORT = process.env.PORT || 5000;
+server.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
