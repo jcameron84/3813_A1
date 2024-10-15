@@ -4,6 +4,7 @@
 <div class="messages-container" style="height: 400px; overflow-y: auto;">
   <div *ngFor="let message of messages">
     <strong>{{ message.sender }}:</strong> {{ message.content }} <br/>
+    <em *ngIf="message.sender === 'System'">{{ message.content }}</em>
     <small>{{ message.createdAt | date:'shortTime' }}</small> <!-- Optional: showing time -->
   </div>
 </div>

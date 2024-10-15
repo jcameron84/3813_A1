@@ -28,6 +28,8 @@ export class AuthService {
       this.loggedIn = true;
       this.userRole = user.role;  // Assign the user's role
       localStorage.setItem('loggedInUser', JSON.stringify(user)); // Store session
+      localStorage.setItem('email', email);
+
       return of(true);
     } else {
       console.error('Invalid Login');
@@ -66,6 +68,11 @@ export class AuthService {
   getRole(): Role | null {
     return this.userRole;
   }
+
+  getEmail(): string {
+    return localStorage.getItem('email') || 'User';
+  }
+
 
   deleteUser(email: string): Observable<boolean> {
     const usersFromStorage = localStorage.getItem('users');

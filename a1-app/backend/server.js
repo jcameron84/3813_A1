@@ -46,36 +46,25 @@ io.on('connection', (socket) => {
   console.log('New client connected');
 
   // Join a channel
-  socket.on('joinChannel', (channelId) => {
+  socket.on('joinChannel', (channelId, username) => {
     socket.join(channelId);
-    console.log(`Client joined channel: ${channelId}`);
+    console.log(`${username} joined channel: ${channelId}`);
+
+    // Broadcast to the other users in the channel that a new user has joined
+    socket.broadcast.to(channelId).emit('userJoined', { username, message: `${username} has joined the chat.` });
   });
 
-  // Send message to the channel
-  socket.on('sendMessage', async ({ channelId, content, sender }) => {
-    console.log('Received message:', { channelId, content, sender });
-
-    const message = {
-      channelId: channelId,
-      content: content,
-      sender: sender,
-      createdAt: new Date(),
-    };
-
-    // Save message to MongoDB
-    try {
-      const messagesCollection = db.collection('messages');
-      await messagesCollection.insertOne(message);
-
-      // Emit the message to all clients in the same channel
-      io.to(channelId).emit('newMessage', message);
-    } catch (err) {
-      console.error('Error saving message:', err);
-    }
-  });
-
+  // Listen for disconnect events
   socket.on('disconnect', () => {
     console.log('Client disconnected');
+    
+    // Assuming you store the username or user ID in socket data
+    const { username, channelId } = socket.data;
+
+    if (channelId && username) {
+      // Notify other users in the channel that the user has left
+      socket.broadcast.to(channelId).emit('userLeft', { username, message: `${username} has left the chat.` });
+    }
   });
 });
 
