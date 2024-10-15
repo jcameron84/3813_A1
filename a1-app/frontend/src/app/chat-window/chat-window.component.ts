@@ -1,5 +1,6 @@
-import { Component, OnInit, Input } from '@angular/core';
-import { ChannelService } from '../channel.service';  // Import your service
+import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { ChatService } from '../services/chat.service';
 
 @Component({
   selector: 'app-chat-window',
@@ -7,34 +8,49 @@ import { ChannelService } from '../channel.service';  // Import your service
   styleUrls: ['./chat-window.component.css']
 })
 export class ChatWindowComponent implements OnInit {
-  @Input() channelId!: string;  // Channel ID passed from parent component
-  messages: any[] = [];  // Array to store messages
-  newMessage: string = '';  // Input message
-  sender: string = 'User';  // Hardcoded sender, replace with dynamic user if needed
+  channelId: string | null = null;  
+  messages: any[] = [];
+  newMessage: string = '';
 
-  constructor(private channelService: ChannelService) {}
+  constructor(private route: ActivatedRoute, private chatService: ChatService) {}
 
   ngOnInit(): void {
-    // Join the channel using Socket.IO
-    this.channelService.joinChannel(this.channelId);
+    this.route.params.subscribe(params => {
+      this.channelId = params['id'];
+      if (this.channelId) {
+        this.loadMessages(this.channelId);
+      }
+    });
+  }
+  
 
-    // Fetch existing messages from the backend
-    this.channelService.getMessages(this.channelId).subscribe((messages) => {
+  loadMessages(channelId: string): void {
+    this.chatService.getMessages(channelId).subscribe((messages) => {
       this.messages = messages;
-    });
-
-    // Listen for new messages in real-time
-    this.channelService.onNewMessage().subscribe((message) => {
-      this.messages.push(message);  // Add the new message to the message array
+    }, error => {
+      console.error('Error loading messages:', error);  // Error handling
     });
   }
 
-  // Send the new message
+  // Send a new message to the channel
   sendMessage(): void {
-    if (this.newMessage.trim()) {
-      // Use the ChannelService to send the message
-      this.channelService.sendMessage(this.channelId, this.newMessage, this.sender);
-      this.newMessage = '';  // Clear the input field after sending
+    if (this.newMessage.trim() === '') {
+      return;
     }
+  
+    const message = {
+      content: this.newMessage,
+      channelId: this.channelId,
+      sender: 'User',
+      createdAt: new Date()
+    };
+  
+    this.chatService.sendMessage(message).subscribe(() => {
+      this.messages.push(message);  // Update the UI with the new message
+      this.newMessage = '';  // Clear the input
+    }, error => {
+      console.error('Error sending message:', error);  // Log the error
+    });
   }
+  
 }

@@ -1,5 +1,4 @@
-import { Component, OnInit } from '@angular/core';
-import { ChannelService } from '../channel.service';
+import { Component, Input } from '@angular/core';
 import { Router } from '@angular/router';
 
 @Component({
@@ -7,19 +6,13 @@ import { Router } from '@angular/router';
   templateUrl: './channel-list.component.html',
   styleUrls: ['./channel-list.component.css']
 })
-export class ChannelListComponent implements OnInit {
-  channels: any[] = [];
+export class ChannelListComponent {
+  @Input() channels: any[] = [];  // Pass the list of channels from the parent component
 
-  constructor(private channelService: ChannelService, private router: Router) {}
+  constructor(private router: Router) {}
 
-  ngOnInit(): void {
-    this.channelService.getChannels().subscribe((channels) => {
-      this.channels = channels;
-    });
-  }
-
-  // Navigate to a specific channel when a channel is clicked
+  // Navigate to the selected channel's chat window
   enterChannel(channelId: string): void {
-    this.router.navigate([`/channel/${channelId}`]);
+    this.router.navigate(['/chat', channelId]);
   }
 }

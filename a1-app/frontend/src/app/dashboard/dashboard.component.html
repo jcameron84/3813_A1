@@ -1,16 +1,37 @@
 <div class="chat-container d-flex mt-5">
-  <!-- Sidebar for Chat Rooms -->
+  <!-- Sidebar for Groups and Channels -->
   <div class="chat-rooms-list p-3 border-end">
     <h2 class="mb-4">Your Groups</h2>
+    
+    <!-- Group List -->
     <div class="list-group">
       <a
-        *ngFor="let room of chatRooms"
+        *ngFor="let group of groups"
         class="list-group-item list-group-item-action"
-        (click)="navigateToRoom(room.id)"
+        (click)="selectGroup(group._id)"
       >
-        {{ room.name }}
+        {{ group.name }}
       </a>
     </div>
+    
+    <!-- Channel List for the Selected Group -->
+    <div *ngIf="selectedGroupId" class="mt-4">
+      <h3>Channels</h3>
+      <ul class="list-group">
+        <li
+          *ngFor="let channel of channels"
+          class="list-group-item list-group-item-action"
+          (click)="selectChannel(channel._id)"
+        >
+          {{ channel.name }}
+        </li>
+      </ul>
+    </div>
+
+    <!-- Buttons -->
+    <button class="btn btn-primary" (click)="logout()">
+      Logout
+    </button>
     <button *ngIf="isSuperUser()" class="btn btn-primary" (click)="goToCreateUser()">
       Create User
     </button>
@@ -20,16 +41,11 @@
     <button *ngIf="isAdmin()" class="btn btn-warning" (click)="goToManageGroups()">
       Manage Groups
     </button>
-    <button class="btn btn-primary" (click)="logout()">
-      Logout
-    </button>
   </div>
 
-  
+  <!-- Chat Window for the Selected Channel -->
   <div class="chat-window p-3 flex-grow-1">
-   
     <h2>Chat Window</h2>
-
-    <router-outlet></router-outlet>
+    <router-outlet></router-outlet>  <!-- Where the chat messages will be displayed -->
   </div>
 </div>

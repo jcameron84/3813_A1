@@ -1,17 +1,37 @@
 const express = require('express');
 const http = require('http');
 const socketIo = require('socket.io');
-const connectToDatabase = require('./db');  // Import MongoDB connection
 const cors = require('cors');
+const connectToDatabase = require('./db');
+const groupRoutes = require('./routes/groupRoutes');
+const messageRoutes = require('./routes/messageRoutes');
 
 // Initialize Express
 const app = express();
 const server = http.createServer(app);
-const io = socketIo(server);
 
-// Middleware
+// Apply CORS middleware
+app.use(cors({
+  origin: 'http://localhost:4200',  // Allow requests from your Angular frontend
+  methods: ['GET', 'POST', 'DELETE', 'PUT'],  // Include other HTTP methods if needed
+  credentials: true
+}));
+
+// Apply middleware to parse JSON request bodies
 app.use(express.json());
-app.use(cors());  // Enable CORS
+
+// Register routes for groups and messages
+app.use('/api', groupRoutes);
+app.use('/api', messageRoutes);  // Ensure this line is present to load the routes
+
+// Initialize Socket.IO with CORS settings
+const io = socketIo(server, {
+  cors: {
+    origin: 'http://localhost:4200',
+    methods: ['GET', 'POST'],
+    credentials: true
+  }
+});
 
 // Setup MongoDB Connection
 let db;
@@ -42,7 +62,7 @@ io.on('connection', (socket) => {
       createdAt: new Date(),
     };
 
-    // Save message to MongoDB (or database)
+    // Save message to MongoDB
     try {
       const messagesCollection = db.collection('messages');
       await messagesCollection.insertOne(message);
@@ -57,45 +77,6 @@ io.on('connection', (socket) => {
   socket.on('disconnect', () => {
     console.log('Client disconnected');
   });
-});
-
-
-// API route to get all channels
-app.get('/api/channels', async (req, res) => {
-  try {
-    const channelsCollection = db.collection('channels');
-    const channels = await channelsCollection.find({}).toArray();
-    res.json(channels);
-  } catch (err) {
-    res.status(500).send('Error retrieving channels');
-  }
-});
-
-// API route to create a new channel
-app.post('/api/channels', async (req, res) => {
-  const { name, description } = req.body;
-  const newChannel = { name, description, createdAt: new Date() };
-
-  try {
-    const channelsCollection = db.collection('channels');
-    const result = await channelsCollection.insertOne(newChannel);
-    res.status(201).json(result.ops[0]);
-  } catch (err) {
-    res.status(500).send('Error creating channel');
-  }
-});
-
-// API route to get messages of a specific channel
-app.get('/api/messages/:channelId', async (req, res) => {
-  const channelId = req.params.channelId;
-
-  try {
-    const messagesCollection = db.collection('messages');
-    const messages = await messagesCollection.find({ channelId }).toArray();
-    res.json(messages);
-  } catch (err) {
-    res.status(500).send('Error retrieving messages');
-  }
 });
 
 // Start server
