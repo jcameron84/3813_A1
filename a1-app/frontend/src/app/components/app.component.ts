@@ -7,7 +7,7 @@ import { Router } from '@angular/router';
   styleUrls: ['../app.component.css']  // Fixed styleUrls typo here
 })
 export class AppComponent implements OnInit {
-  title = 'frontend';
+  title = 'Chat app';
 
   constructor(private router: Router) {}
 
@@ -27,6 +27,6 @@ export class AppComponent implements OnInit {
   }
 
   goToDashboard() {
-    this.router.navigate(['/dashboard']);
+    this.router.navigate(['/dashboard']).catch((err) => console.error('Navigation error:', err));
   }
 }

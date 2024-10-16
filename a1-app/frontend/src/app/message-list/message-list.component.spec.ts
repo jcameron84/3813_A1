@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MessageListComponent } from './message-list.component';
+import { FormsModule } from '@angular/forms';
 
 describe('MessageListComponent', () => {
   let component: MessageListComponent;
@@ -8,6 +9,7 @@ describe('MessageListComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
+      imports: [HttpClientTestingModule,FormsModule],
       declarations: [MessageListComponent]
     })
     .compileComponents();

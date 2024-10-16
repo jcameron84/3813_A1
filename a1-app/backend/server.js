@@ -1,37 +1,17 @@
 const express = require('express');
 const http = require('http');
 const socketIo = require('socket.io');
+const connectToDatabase = require('./db');  // Import MongoDB connection
 const cors = require('cors');
-const connectToDatabase = require('./db');
-const groupRoutes = require('./routes/groupRoutes');
-const messageRoutes = require('./routes/messageRoutes');
 
 // Initialize Express
 const app = express();
 const server = http.createServer(app);
+const io = socketIo(server);
 
-// Apply CORS middleware
-app.use(cors({
-  origin: 'http://localhost:4200',  // Allow requests from your Angular frontend
-  methods: ['GET', 'POST', 'DELETE', 'PUT'],  // Include other HTTP methods if needed
-  credentials: true
-}));
-
-// Apply middleware to parse JSON request bodies
+// Middleware
 app.use(express.json());
-
-// Register routes for groups and messages
-app.use('/api', groupRoutes);
-app.use('/api', messageRoutes);  // Ensure this line is present to load the routes
-
-// Initialize Socket.IO with CORS settings
-const io = socketIo(server, {
-  cors: {
-    origin: 'http://localhost:4200',
-    methods: ['GET', 'POST'],
-    credentials: true
-  }
-});
+app.use(cors());  // Enable CORS
 
 // Setup MongoDB Connection
 let db;
@@ -46,26 +26,76 @@ io.on('connection', (socket) => {
   console.log('New client connected');
 
   // Join a channel
-  socket.on('joinChannel', (channelId, username) => {
+  socket.on('joinChannel', (channelId) => {
     socket.join(channelId);
-    console.log(`${username} joined channel: ${channelId}`);
-
-    // Broadcast to the other users in the channel that a new user has joined
-    socket.broadcast.to(channelId).emit('userJoined', { username, message: `${username} has joined the chat.` });
+    console.log(`Client joined channel: ${channelId}`);
   });
 
-  // Listen for disconnect events
-  socket.on('disconnect', () => {
-    console.log('Client disconnected');
-    
-    // Assuming you store the username or user ID in socket data
-    const { username, channelId } = socket.data;
+  // Send message to the channel
+  socket.on('sendMessage', async ({ channelId, content, sender }) => {
+    console.log('Received message:', { channelId, content, sender });
 
-    if (channelId && username) {
-      // Notify other users in the channel that the user has left
-      socket.broadcast.to(channelId).emit('userLeft', { username, message: `${username} has left the chat.` });
+    const message = {
+      channelId: channelId,
+      content: content,
+      sender: sender,
+      createdAt: new Date(),
+    };
+
+    // Save message to MongoDB (or database)
+    try {
+      const messagesCollection = db.collection('messages');
+      await messagesCollection.insertOne(message);
+
+      // Emit the message to all clients in the same channel
+      io.to(channelId).emit('newMessage', message);
+    } catch (err) {
+      console.error('Error saving message:', err);
     }
   });
+
+  socket.on('disconnect', () => {
+    console.log('Client disconnected');
+  });
+});
+
+
+// API route to get all channels
+app.get('/api/channels', async (req, res) => {
+  try {
+    const channelsCollection = db.collection('channels');
+    const channels = await channelsCollection.find({}).toArray();
+    res.json(channels);
+  } catch (err) {
+    res.status(500).send('Error retrieving channels');
+  }
+});
+
+// API route to create a new channel
+app.post('/api/channels', async (req, res) => {
+  const { name, description } = req.body;
+  const newChannel = { name, description, createdAt: new Date() };
+
+  try {
+    const channelsCollection = db.collection('channels');
+    const result = await channelsCollection.insertOne(newChannel);
+    res.status(201).json(result.ops[0]);
+  } catch (err) {
+    res.status(500).send('Error creating channel');
+  }
+});
+
+// API route to get messages of a specific channel
+app.get('/api/messages/:channelId', async (req, res) => {
+  const channelId = req.params.channelId;
+
+  try {
+    const messagesCollection = db.collection('messages');
+    const messages = await messagesCollection.find({ channelId }).toArray();
+    res.json(messages);
+  } catch (err) {
+    res.status(500).send('Error retrieving messages');
+  }
 });
 
 // Start server
