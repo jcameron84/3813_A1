@@ -2,7 +2,7 @@
 <h2>Joel Cameron - s5220233</h2>
 
 <h3>Git Organisation</h3>
-Since I am the only developer on this project, I will use the main branch as my development branch. I will post a commit either at the end of a coding session or when I complete a significant chunk of work.
+Since I am the only developer on this project, I will use the main branch as my development branch this also makes it slightly more convinient for pushing and pulling changes. I will post a commit either at the end of a coding session or when I complete a significant chunk of work. During the middle stage of the project I forgot to commit since no one else is relying on me pushing my changes. 
 
 <h3>Data Structures</h3>
 <h4>Users</h4>
@@ -12,10 +12,64 @@ Admins can create new groups and add exisiting users to those groups. They can a
 Users have no permissions other than being able to interact within the groups/channels created by the admins.
 
 <h4>Groups</h4>
-Groups are created and manged by admins. A group may contain many channels for different topics and each group can contain many users. 
+Groups are created and manged by admins. A group may contain many channels for different topics and each group can contain many users. Groups are stored in browser local storage. They are given an ID which allows its channels to identify with it despite being stored in mongo DB seperately.
 
 <h4>Channels</h4>
-Channels exist within a group. Each channel will have a name set by the admin which will usially reflect the intended use for that channel. For example there may be a music channel for dicussing music or a movie channel for discussing movies.
+Channels exist within a group. Each channel will have a name set by the admin which will usially reflect the intended use for that channel. For example there may be a music channel for dicussing music or a movie channel for discussing movies. Channels are stored in mongo DB. They identify with a group using an ID which is stored both in mongo and in local storage.
+
+<h3>Division of responsibilites between client and server</h3>
+<h4>Client</h4>
+The frontend is responsible for handling the user interface, gathering user input, and displaying data to the user. It communicates with the backend via HTTP requests to send or receive data. Specifically, it performs the following functions:
+
+User Interface and Interaction:
+
+Provides a responsive UI using Angular to allow users to navigate the application, interact with chat rooms, and manage groups.
+Handles dynamic routing (e.g., navigating to chat rooms or user management pages).
+Uses Angular components, such as DashboardComponent, to manage individual screens.
+Local Storage Management:
+
+Stores user session details and group data in localStorage to maintain state across page reloads.
+Manages channels and groups by retrieving, displaying, and updating data stored locally on the client side.
+Authentication Management:
+
+Collects login credentials and forwards them to the backend for verification.
+Stores user role and session information locally for access control (e.g., ensuring only admins can access certain pages).
+Real-time Chat Communication:
+
+Uses Socket.IO to interact with the backend for real-time messaging and notifications when users join or leave chat channels.
+Error Handling and Navigation:
+
+Handles frontend-level errors (e.g., form validation failures).
+Provides navigation between pages (e.g., login, dashboard, group management) using Angular’s router.
+
+<h4>Server</h4>
+The backend handles the core business logic, manages data, and provides the necessary endpoints for the frontend to interact with. It also ensures secure communication and persistent data management. The server performs the following functions:
+
+API Routes:
+
+Exposes RESTful endpoints (e.g., /api/groups, /api/messages) for the frontend to manage groups, channels, and messages.
+Handles CRUD operations for groups and messages.
+Manages routes related to user management (e.g., creating, deleting users).
+Authentication and Authorization:
+
+Validates user credentials received from the frontend.
+Assigns roles to users (e.g., admin, superUser) and enforces access control by validating roles when interacting with protected routes or actions.
+Database Management:
+
+Connects to the MongoDB database to store and retrieve group, user, and message data.
+Ensures the backend remains the single source of truth for all persistent data.
+Real-time Communication with Socket.IO:
+
+Listens for and processes Socket.IO events from the frontend, such as joining or leaving chat channels.
+Broadcasts real-time notifications (e.g., a user joining or leaving a channel) to all clients connected to a channel.
+Session Management and Logout:
+
+Clears sessions and user roles when the user logs out.
+Removes users from channels in real-time when they disconnect from the frontend.
+Middleware and Security:
+
+Uses CORS to allow secure communication between the backend and frontend hosted on different origins.
+Handles JSON parsing for incoming requests to ensure smooth data exchange.
 
 <h3>Angular Architecture</h3>
 <h4>Login</h4>
@@ -149,4 +203,22 @@ On success: Returns a list of all groups along with their details (name, members
 On failure: Returns an error if the user is unauthorized.
 
 <h3>Client / Server Interaction</h3>
-At this stage, client server interaction has not been set up and will be added in phase 2 of the project
+<h4>Authentication:</h4>
+
+Backend: AuthService updates loggedInUser and userRole. </br>
+Frontend: User state is stored locally and in the component state.
+
+<h4>Group Management:/<h4>
+
+Backend: MongoDB stores and retrieves group data. </br>
+Frontend: Dashboard updates dynamically with new or modified group data.
+
+<h4>Chat Communication:</h4>
+
+Backend: Socket.IO manages real-time events. </br>
+Frontend: Chat messages are displayed without refreshing the page.
+
+<h4>Session Management:</h4>
+
+Backend: Sessions are created and destroyed on login and logout. </br>
+Frontend: User is redirected appropriately based on session state.
